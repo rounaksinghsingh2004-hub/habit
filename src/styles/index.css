@@ -15,8 +15,10 @@ body {
 
 /* Card base styles */
 .card {
-  @apply bg-white rounded-2xl border border-gray-100 shadow-sm;
-  box-shadow: var(--shadow-soft);
+  background: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
@@ -25,61 +27,101 @@ body {
 
 /* Button styles */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .btn-primary {
-  @apply bg-primary text-white;
+  background: var(--color-primary);
+  color: #ffffff;
 }
 
 .btn-primary:hover {
-  @apply shadow-lg;
+  box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  @apply bg-secondary text-secondary-foreground;
+  background: var(--color-secondary);
+  color: #ffffff;
 }
 
 .btn-secondary:hover {
-  @apply bg-muted;
+  background: var(--bg-tertiary);
 }
 
 /* Input styles */
 .input {
-  @apply w-full px-4 py-3 bg-input-background border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
 
 /* Badge styles */
 .badge {
-  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .badge-health {
-  @apply bg-health-bg text-health-text;
+  background: var(--color-health-bg);
+  color: var(--color-health);
 }
 
 .badge-study {
-  @apply bg-study-bg text-study-text;
+  background: var(--color-study-bg);
+  color: var(--color-study);
 }
 
 .badge-mental {
-  @apply bg-mental-bg text-mental-text;
+  background: var(--color-mental-bg);
+  color: var(--color-mental);
 }
 
 .badge-lifestyle {
-  @apply bg-lifestyle-bg text-lifestyle-text;
+  background: var(--color-lifestyle-bg);
+  color: var(--color-lifestyle);
 }
 
 /* Streak badge */
 .streak-badge {
-  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
-  @apply bg-gradient-to-r from-orange-100 to-amber-100 text-orange-600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
 }
 
 /* Progress ring styles */
 .progress-ring {
-  @apply relative inline-flex items-center justify-center;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .progress-ring svg {
@@ -171,16 +213,19 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  @apply bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Glass effect */
 .glass {
-  @apply backdrop-blur-lg bg-white/80;
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 /* Soft shadow utility */
 .shadow-soft-lg {
-  box-shadow: 0 8px 30px -8px rgb(99 102 241 / 0.15), 0 4px 15px -4px rgb(99 102 241 / 0.1);
+  box-shadow: 0 8px 30px -8px rgba(99, 102, 241, 0.15), 0 4px 15px -4px rgba(99, 102, 241, 0.1);
 }
-"/* Build timestamp: $(date) */"  
