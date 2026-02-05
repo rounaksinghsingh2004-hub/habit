@@ -4,8 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  // GitHub Pages deployment configuration
-  base: process.env.NODE_ENV === 'production' ? '/Task_Rounak/' : '/',
+  // Vercel deployment configuration (no base path needed)
+  base: '/',
   
   plugins: [
     // The React and Tailwind plugins are both required for Make, even if
@@ -26,6 +26,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks: {

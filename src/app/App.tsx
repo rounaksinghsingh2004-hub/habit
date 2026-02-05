@@ -111,7 +111,7 @@ function App() {
   ) => {
     try {
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-c0325d53/load-data`,
+        `/api/load-data`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +154,7 @@ function App() {
     setIsSyncing(true);
     try {
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-c0325d53/save-data`,
+        `/api/save-data`,
         {
           method: "POST",
           headers: {

@@ -1,232 +1,428 @@
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Calendar, Award } from 'lucide-react';
-import ExcelExport from '@/app/components/ExcelExport';
+import { useState } from "react"
+import { cn } from "@/app/components/ui/utils"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from "recharts"
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Flame,
+  CheckCircle,
+  Calendar,
+  Trophy,
+  Target,
+  Zap,
+  Star,
+} from "lucide-react"
 
-interface Habit {
-  id: string;
-  name: string;
-  category: string;
-  streak: number;
+type TimeRange = "weekly" | "monthly" | "yearly"
+
+// Sample data
+const weeklyData = [
+  { day: "Mon", habits: 4, tasks: 3, rate: 80 },
+  { day: "Tue", habits: 5, tasks: 4, rate: 90 },
+  { day: "Wed", habits: 3, tasks: 2, rate: 60 },
+  { day: "Thu", habits: 6, tasks: 5, rate: 100 },
+  { day: "Fri", habits: 4, tasks: 4, rate: 85 },
+  { day: "Sat", habits: 2, tasks: 2, rate: 45 },
+  { day: "Sun", habits: 5, tasks: 4, rate: 88 },
+]
+
+const monthlyData = [
+  { week: "Week 1", habits: 3.5, rate: 72 },
+  { week: "Week 2", habits: 4.2, rate: 78 },
+  { week: "Week 3", habits: 3.8, rate: 68 },
+  { week: "Week 4", habits: 4.5, rate: 85 },
+]
+
+const yearlyData = [
+  { month: "Jan", habits: 3.2 },
+  { month: "Feb", habits: 3.8 },
+  { month: "Mar", habits: 4.1 },
+  { month: "Apr", habits: 3.5 },
+  { month: "May", habits: 4.3 },
+  { month: "Jun", habits: 3.9 },
+  { month: "Jul", habits: 4.5 },
+  { month: "Aug", habits: 4.2 },
+  { month: "Sep", habits: 3.7 },
+  { month: "Oct", habits: 4.0 },
+  { month: "Nov", habits: 4.4 },
+  { month: "Dec", habits: 3.6 },
+]
+
+interface StatCardProps {
+  title: string
+  value: string
+  subtitle?: string
+  icon: React.ReactNode
+  trend?: "up" | "down" | "neutral"
+  trendValue?: string
+  color: string
 }
 
-interface InsightsPageProps {
-  dailyData: any;
-  habits: Habit[];
+function StatCard({ title, value, subtitle, icon, trend, trendValue, color }: StatCardProps) {
+  return (
+    <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{title}</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">{value}</p>
+          {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
+        </div>
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: `${color}15` }}
+        >
+          {icon}
+        </div>
+      </div>
+      {trend && trendValue && (
+        <div className="flex items-center gap-1 mt-2">
+          {trend === "up" && <TrendingUp className="w-4 h-4 text-green-500" />}
+          {trend === "down" && <TrendingDown className="w-4 h-4 text-red-500" />}
+          {trend === "neutral" && <Minus className="w-4 h-4 text-slate-400" />}
+          <span
+            className={cn(
+              "text-xs font-medium",
+              trend === "up" && "text-green-600",
+              trend === "down" && "text-red-600",
+              trend === "neutral" && "text-slate-500"
+            )}
+          >
+            {trendValue}
+          </span>
+        </div>
+      )}
+    </div>
+  )
 }
 
-export default function InsightsPage({ dailyData, habits }: InsightsPageProps) {
-  // Calculate weekly data (last 7 days)
-  const getWeeklyData = () => {
-    const data = [];
-    const today = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split('T')[0];
-      const dayData = dailyData[dateKey];
-      
-      data.push({
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        completed: dayData?.completedHabits?.length || 0,
-        date: dateKey,
-      });
-    }
-    
-    return data;
-  };
+export default function InsightsPage() {
+  const [timeRange, setTimeRange] = useState<TimeRange>("weekly")
 
-  // Calculate monthly data (last 30 days)
-  const getMonthlyData = () => {
-    const data = [];
-    const today = new Date();
-    
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split('T')[0];
-      const dayData = dailyData[dateKey];
-      
-      data.push({
-        date: date.getDate(),
-        completed: dayData?.completedHabits?.length || 0,
-      });
-    }
-    
-    return data;
-  };
+  const averages = {
+    weekly: {
+      habitsPerDay: 4.1,
+      tasksPerDay: 3.4,
+      completionRate: 78,
+      trendUp: true,
+      trendValue: "12% higher than last week",
+    },
+    monthly: {
+      habitsPerDay: 3.8,
+      productiveDays: 4.2,
+      avgStreak: 5.3,
+      trendUp: true,
+      trendValue: "Better than last month",
+    },
+    yearly: {
+      habitsPerDay: 3.9,
+      bestMonth: "July",
+      avgStreak: 6.1,
+      avgPerMonth: 4.0,
+      trendUp: true,
+      trendValue: "On track for goals",
+    },
+  }
 
-  const weeklyData = getWeeklyData();
-  const monthlyData = getMonthlyData();
-  
-  const weeklyAvg = (weeklyData.reduce((sum, d) => sum + d.completed, 0) / 7).toFixed(1);
-  const monthlyAvg = (monthlyData.reduce((sum, d) => sum + d.completed, 0) / 30).toFixed(1);
-  
-  const weeklyTotal = weeklyData.reduce((sum, d) => sum + d.completed, 0);
-  const prevWeekTotal = weeklyTotal; // Simplified for demo
-  const weeklyTrend = weeklyTotal >= prevWeekTotal ? 'up' : 'down';
+  const currentAverages = averages[timeRange]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Insights</h1>
-        <p className="text-gray-600">Track your progress and discover patterns</p>
+    <div className="p-6 space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Insights</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Track your progress over time</p>
+        </div>
+        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+          {(["weekly", "monthly", "yearly"] as TimeRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={cn(
+                "px-4 py-1.5 rounded-md text-sm font-medium transition-all",
+                timeRange === range
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              {range.charAt(0).toUpperCase() + range.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Weekly Insights */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Weekly Summary</h2>
-          <div className="flex items-center gap-2 text-green-600">
-            <TrendingUp size={20} />
-            <span className="text-sm font-medium">+12% vs last week</span>
+      {/* Weekly Averages Card */}
+      {timeRange === "weekly" && (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-5 border border-indigo-100">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="w-5 h-5 text-indigo-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Weekly Averages</h2>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <StatCard
+              title="Habits/Day"
+              value={currentAverages.habitsPerDay.toFixed(1)}
+              subtitle="Last 7 days"
+              icon={<CheckCircle className="w-5 h-5 text-green-500" />}
+              trend={currentAverages.trendUp ? "up" : "down"}
+              trendValue={currentAverages.trendValue}
+              color="#22c55e"
+            />
+            <StatCard
+              title="Tasks/Day"
+              value={(currentAverages as any).tasksPerDay?.toFixed(1) || "3.4"}
+              subtitle="Completed daily"
+              icon={<Target className="w-5 h-5 text-blue-500" />}
+              color="#3b82f6"
+            />
+            <StatCard
+              title="Completion"
+              value={`${currentAverages.completionRate}%`}
+              subtitle="Success rate"
+              icon={<Zap className="w-5 h-5 text-amber-500" />}
+              trend={currentAverages.trendUp ? "up" : "neutral"}
+              trendValue="Great progress!"
+              color="#eab308"
+            />
           </div>
         </div>
+      )}
 
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="p-4 bg-blue-50 rounded-xl">
-            <div className="text-sm text-blue-700 mb-1">Avg Habits/Day</div>
-            <div className="text-2xl font-bold text-blue-900">{weeklyAvg}</div>
+      {/* Monthly Averages Card */}
+      {timeRange === "monthly" && (
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Monthly Averages</h2>
           </div>
-          <div className="p-4 bg-green-50 rounded-xl">
-            <div className="text-sm text-green-700 mb-1">Completion Rate</div>
-            <div className="text-2xl font-bold text-green-900">87%</div>
-          </div>
-          <div className="p-4 bg-purple-50 rounded-xl">
-            <div className="text-sm text-purple-700 mb-1">Best Day</div>
-            <div className="text-2xl font-bold text-purple-900">Sat</div>
-          </div>
-          <div className="p-4 bg-orange-50 rounded-xl">
-            <div className="text-sm text-orange-700 mb-1">Total Completed</div>
-            <div className="text-2xl font-bold text-orange-900">{weeklyTotal}</div>
+          <div className="grid grid-cols-2 grid-rows-2 gap-4">
+            <StatCard
+              title="Habits/Day"
+              value={currentAverages.habitsPerDay.toFixed(1)}
+              subtitle="Daily average"
+              icon={<CheckCircle className="w-5 h-5 text-green-500" />}
+              color="#22c55e"
+            />
+            <StatCard
+              title="Productive Days"
+              value={(currentAverages as any).productiveDays.toFixed(1)}
+              subtitle="Per week avg"
+              icon={<Star className="w-5 h-5 text-amber-500" />}
+              color="#eab308"
+            />
+            <StatCard
+              title="Avg Streak"
+              value={`${(currentAverages as any).avgStreak} days`}
+              subtitle="Current month"
+              icon={<Flame className="w-5 h-5 text-orange-500" />}
+              color="#f97316"
+            />
+            <StatCard
+              title="Best Week"
+              value="Week 4"
+              subtitle="4.5 habits/day"
+              icon={<Trophy className="w-5 h-5 text-purple-500" />}
+              color="#a855f7"
+            />
           </div>
         </div>
+      )}
 
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+      {/* Yearly Averages Card */}
+      {timeRange === "yearly" && (
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-5 border border-orange-100">
+          <div className="flex items-center gap-2 mb-4">
+            <Star className="w-5 h-5 text-amber-500" />
+            <h2 className="text-lg font-semibold text-slate-800">Yearly Averages & Trends</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              title="Habits/Day"
+              value={currentAverages.habitsPerDay.toFixed(1)}
+              subtitle="Yearly average"
+              icon={<CheckCircle className="w-5 h-5 text-green-500" />}
+              color="#22c55e"
+            />
+            <StatCard
+              title="Best Month"
+              value={(currentAverages as any).bestMonth}
+              subtitle="Highest average"
+              icon={<Trophy className="w-5 h-5 text-amber-500" />}
+              color="#eab308"
+            />
+            <StatCard
+              title="Avg Streak"
+              value={`${(currentAverages as any).avgStreak} days`}
+              subtitle="This year"
+              icon={<Flame className="w-5 h-5 text-orange-500" />}
+              color="#f97316"
+            />
+            <StatCard
+              title="Monthly Avg"
+              value={(currentAverages as any).avgPerMonth.toFixed(1)}
+              subtitle="Habits/month"
+              icon={<Calendar className="w-5 h-5 text-blue-500" />}
+              color="#3b82f6"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Charts */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">
+          {timeRange === "weekly" && "Daily Completions"}
+          {timeRange === "monthly" && "Weekly Progress"}
+          {timeRange === "yearly" && "Monthly Trends"}
+        </h3>
+        <ResponsiveContainer width="100%" height={200}>
+          {timeRange === "weekly" ? (
             <BarChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="day" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} />
+              <YAxis stroke="#94a3b8" fontSize={12} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
+                  backgroundColor: "white",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                 }}
               />
-              <Bar dataKey="completed" radius={[8, 8, 0, 0]}>
-                {weeklyData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill="#3b82f6" />
-                ))}
-              </Bar>
+              <Bar dataKey="habits" fill="url(#barGradient)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="tasks" fill="url(#barGradient2)" radius={[4, 4, 0, 0]} />
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" />
+                  <stop offset="100%" stopColor="#818cf8" />
+                </linearGradient>
+                <linearGradient id="barGradient2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#22c55e" />
+                  <stop offset="100%" stopColor="#86efac" />
+                </linearGradient>
+              </defs>
             </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Monthly Insights */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Monthly Overview</h2>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar size={20} />
-            <span>Last 30 days</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="p-4 bg-indigo-50 rounded-xl">
-            <div className="text-sm text-indigo-700 mb-1">Avg Habits/Day</div>
-            <div className="text-2xl font-bold text-indigo-900">{monthlyAvg}</div>
-          </div>
-          <div className="p-4 bg-teal-50 rounded-xl">
-            <div className="text-sm text-teal-700 mb-1">Productive Days</div>
-            <div className="text-2xl font-bold text-teal-900">24/30</div>
-          </div>
-          <div className="p-4 bg-rose-50 rounded-xl">
-            <div className="text-sm text-rose-700 mb-1">Best Week</div>
-            <div className="text-2xl font-bold text-rose-900">Week 2</div>
-          </div>
-          <div className="p-4 bg-amber-50 rounded-xl">
-            <div className="text-sm text-amber-700 mb-1">Avg Streak</div>
-            <div className="text-2xl font-bold text-amber-900">5.2 days</div>
-          </div>
-        </div>
-
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
+          ) : timeRange === "monthly" ? (
+            <AreaChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="week" stroke="#94a3b8" fontSize={12} />
+              <YAxis stroke="#94a3b8" fontSize={12} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
+                  backgroundColor: "white",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="habits"
+                stroke="#3b82f6"
+                fill="url(#areaGradient)"
+                strokeWidth={2}
+              />
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          ) : (
+            <LineChart data={yearlyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
+              <YAxis stroke="#94a3b8" fontSize={12} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                 }}
               />
               <Line
                 type="monotone"
-                dataKey="completed"
-                stroke="#8b5cf6"
+                dataKey="habits"
+                stroke="#f97316"
                 strokeWidth={2}
-                dot={{ fill: '#8b5cf6', r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ fill: "#f97316", strokeWidth: 2 }}
               />
             </LineChart>
-          </ResponsiveContainer>
+          )}
+        </ResponsiveContainer>
+      </div>
+
+      {/* Category Breakdown */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Category Breakdown</h3>
+        <div className="space-y-3">
+          {[
+            { category: "Health", percentage: 85, color: "bg-green-500" },
+            { category: "Study", percentage: 72, color: "bg-blue-500" },
+            { category: "Mental", percentage: 68, color: "bg-purple-500" },
+            { category: "Lifestyle", percentage: 91, color: "bg-orange-500" },
+          ].map((item) => (
+            <div key={item.category} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-700">{item.category}</span>
+                <span className="text-sm text-slate-500">{item.percentage}%</span>
+              </div>
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all duration-500", item.color)}
+                  style={{ width: `${item.percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Yearly Insights */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold">Yearly Progress</h2>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Award size={20} />
-            <span>2026</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="p-4 bg-violet-50 rounded-xl">
-            <div className="text-sm text-violet-700 mb-1">Avg Habits/Day</div>
-            <div className="text-2xl font-bold text-violet-900">6.8</div>
-          </div>
-          <div className="p-4 bg-cyan-50 rounded-xl">
-            <div className="text-sm text-cyan-700 mb-1">Total Days</div>
-            <div className="text-2xl font-bold text-cyan-900">33</div>
-          </div>
-          <div className="p-4 bg-fuchsia-50 rounded-xl">
-            <div className="text-sm text-fuchsia-700 mb-1">Best Month</div>
-            <div className="text-2xl font-bold text-fuchsia-900">Feb</div>
-          </div>
-          <div className="p-4 bg-lime-50 rounded-xl">
-            <div className="text-sm text-lime-700 mb-1">Best Streak</div>
-            <div className="text-2xl font-bold text-lime-900">12 days</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-          <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-            <h3 className="font-medium mb-2">🎯 Achievement</h3>
-            <p className="text-sm text-gray-700">
-              You've maintained a habit streak for 12 consecutive days!
-            </p>
-          </div>
-          <div className="p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl border border-green-100">
-            <h3 className="font-medium mb-2">💡 Pattern</h3>
-            <p className="text-sm text-gray-700">
-              You complete 30% more habits on gym days. Keep exercising!
-            </p>
-          </div>
+      {/* Achievements */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Achievements</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { name: "First Steps", earned: true, icon: "👟" },
+            { name: "Week Warrior", earned: true, icon: "🔥" },
+            { name: "Perfect Week", earned: false, icon: "⭐" },
+            { name: "Monthly Master", earned: false, icon: "🏆" },
+          ].map((achievement) => (
+            <div
+              key={achievement.name}
+              className={cn(
+                "p-3 rounded-xl text-center transition-all",
+                achievement.earned
+                  ? "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200"
+                  : "bg-slate-50 border border-slate-200 opacity-50"
+              )}
+            >
+              <div className="text-2xl mb-1">{achievement.icon}</div>
+              <p className={cn(
+                "text-xs font-medium",
+                achievement.earned ? "text-slate-800" : "text-slate-500"
+              )}>
+                {achievement.name}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Excel Export */}
-      <ExcelExport habits={habits} dailyData={dailyData} />
     </div>
-  );
+  )
 }

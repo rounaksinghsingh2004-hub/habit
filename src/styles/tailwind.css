@@ -1,4 +1,123 @@
-@import 'tailwindcss' source(none);
+@import 'tailwindcss';
 @source '../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
+/* Theme CSS variable mapping for Tailwind v4 */
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-soft: var(--color-primary-soft);
+  
+  --color-secondary: var(--color-secondary);
+  --color-secondary-light: var(--color-secondary-light);
+  
+  --color-health: var(--color-health);
+  --color-health-light: var(--color-health-light);
+  --color-health-soft: var(--color-health-soft);
+  
+  --color-study: var(--color-study);
+  --color-study-light: var(--color-study-light);
+  --color-study-soft: var(--color-study-soft);
+  
+  --color-mental: var(--color-mental);
+  --color-mental-light: var(--color-mental-light);
+  --color-mental-soft: var(--color-mental-soft);
+  
+  --color-lifestyle: var(--color-lifestyle);
+  --color-lifestyle-light: var(--color-lifestyle-light);
+  --color-lifestyle-soft: var(--color-lifestyle-soft);
+  
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --color-info: var(--color-info);
+  
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
+  
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.5s ease-out;
+  --animate-bounce: bounce 1s ease-in-out;
+  --animate-pulse: pulse 2s ease-in-out;
+}
+
+/* Define keyframes at root level for Tailwind */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* CSS Variables for backward compatibility */
+:root {
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-primary-soft: #eef2ff;
+  --color-secondary: #f472b6;
+  --color-secondary-light: #f9a8d4;
+  --color-health: #22c55e;
+  --color-health-light: #86efac;
+  --color-health-soft: #dcfce7;
+  --color-study: #3b82f6;
+  --color-study-light: #93c5fd;
+  --color-study-soft: #dbeafe;
+  --color-mental: #a855f7;
+  --color-mental-light: #c084fc;
+  --color-mental-soft: #ede9fe;
+  --color-lifestyle: #f97316;
+  --color-lifestyle-light: #fdba74;
+  --color-lifestyle-soft: #ffedd5;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Poppins', sans-serif;
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-full: 9999px;
+}
